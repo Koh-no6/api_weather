@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather+α</title>
+    <style>
+        #view{
+            padding: 10px;
+            border: 4px solid #f52f8e;
+            width: 50%px;
+            background-color: rgb(255, 255, 255);
+            height:500px;
+            overflow: auto;
+        }
+        img{
+            width:50px;
+        }
+        #view>div{
+            border-bottom: 1px dotted #3838ab;
+            font-size:medium;
+        }
+        .bold{
+            font-weight: bold;
+        }
+        h2{
+            font-size:x-large;
+            color:#f1071e;
+        }
+        .container {
+        max-width: 70%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    h1 {
+        text-align: center;
+    }
+    
+    h2 {
+        text-align: center;
+    }
+
+    form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .buttons{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        background-color: lightgray;
+        border-radius: 4px;
+    }
+
+    .buttons p{
+        width: 20%;
+        display: inline-block;
+        background-color: #4a4a4a;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        text-align: center;
+        margin: 20px;
+    }
+
+    input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    input[type="date"] {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        margin-left: 10px;
+    }
+
+    input[type="submit"] {
+        background-color: #f52f8e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+    
+    .addTask {
+        background-color: #f52f8e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    li {
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: lightyellow;
+        border-radius: 4px;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+    li span{
+        border: #0098fe solid 3px;
+        color: #0098fe;
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: auto;
+    }
+
+    li span::before{
+        content: "期限：";
+    }
+
+    li button {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+
+    </style>
+</head>
+<body>
+    <div>
+        <h1>
+           <span id="area"></span> お天気＋α
+        </h1>
+        <div id="view"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script>
+        //＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+        //MAP表示処理
+        //＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+        const key   = "973e6bea1d665f6f3f127a04adb0d15f";  //***自分のKEYを！！！！！！！！！！！！！！！***
+        const lat   = "33.5288162";   //地元の公園の緯度
+        const lon   = "130.4628227";  //地元の公園の軽度
+        const icon  = "http://openweathermap.org/img/wn/"; //ICONにアクセスするURL
+
+        //＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+        //OpenWeatherAPI（天気情報を取得）5DAY/3hour
+        //＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+        const url = 'https://api.openweathermap.org/data/2.5/forecast?lat='+lat+'&lon='+lon+'&appid='+key+'&lang=ja';
+
+        $.ajax({
+            url:url,
+            type:'get',
+            cache:false,
+            dataType:'json'
+        }).done(function(data){
+          // console.log(data.list[0].dt_txt);//オブジェクト変数を確認
+          console.log(data);//オブジェクト変数を確認
+
+
+        let html="";
+        for(let i=0; i<data.list.length; i++){
+          html +=`
+            <div>
+              <div>${data.list[i].dt_txt}</div>
+              <div>${data.list[i].weather[0].main}</div>
+              <div>${data.list[i].weather[0].description}</div>
+              <div><img src="${icon+data.list[i].weather[0].icon}@2x.png"></div>
+              <form>
+                  <input type="text" class="taskInput" placeholder="タスク">
+                  <button type="button" class="addTask">追加</button>
+              </form>
+              <ul class="taskList"></ul>
+            </div>
+          `;
+        }
+          //作成したHTMLを埋め込む
+          $('#view').append(html);
+
+        });
+
+
+      // タスクを追加する関数
+      const BUTTON_CLICK_EVENT= document.getElementsByClassName('addTask');
+
+      BUTTON_CLICK_EVENT.addEventListener('click', () => {
+          const taskInput = document.getElementsByClassName("taskInput"); //入力されたタスクの内容を取得
+          const taskList = document.getElementsByClassName("taskList");   //タスク一覧を表示するul要素を取得
+          const newTask = document.createElement("li");   // li要素を作成。新しく追加されるタスクを表示
+
+          // タスク未入力の場合エラー表示
+          if (taskInput.value === ""){
+              alert("落ち着いてタスクを入れましょう");
+              return;
+          }
+          
+          newTask.innerText = taskInput.value;  // 新しく作成されたli要素のテキスト = 入力されたタスクの内容
+
+
+          // タスク完了ボタンを追加
+          const doneButton = document.createElement("button"); //button要素を作成するためのメソッド。タスク完了ボタンを表示
+          doneButton.innerText = "タスク完了";
+          doneButton.addEventListener("click", removeTask); // タスク完了ボタンを押した際にremoveTaskを呼び出す
+          newTask.appendChild(doneButton);    //新しく作成されたli要素の子要素として、タスク完了ボタンを追加
+
+          newTask.addEventListener("click", toggleTask); //タスクの文字列部分がクリックされた時に実行する関数。この場合toggle関数
+          taskList.appendChild(newTask); //新しく追加されたli要素、ulの子要素として一覧に追加
+          
+      });
+
+      // タスクを削除する関数
+      function removeTask(){
+          this.parentNode.parentNode.removeChild(this.parentNode); //タスク完了ボタンクリック → 属するliを削除
+      }
+    </script>
+</body>
+</html>
